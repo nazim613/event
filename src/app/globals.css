@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The rest of your custom CSS can go here if needed */
+body {
+  font-family: 'ZenRun', Arial, sans-serif;
+    
+}
+@font-face {
+  font-family: 'ZenRun';
+  src: url('/public/fonts/FiraCode-Regular.woff2') format('woff2'),
+       url('/public/fonts/FiraCode-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ZenRun Bold */
+@font-face {
+  font-family: 'ZenRun';
+  src: url('/public/fonts/FiraCode-Bold.woff2') format('woff2'),
+       url('/public/fonts/FiraCode-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
