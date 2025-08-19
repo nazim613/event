@@ -1,6 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Header from './components/Header';
+import CustomCursor from './components/CustomCursor';
+import GSAPHeroAnimation from './components/gsapanimation';
+import AnimatedMockup from './components/AnimatedMockup';
+import Animatedslide from './components/Animatedslides';
 import {
     Calendar,
     Users,
@@ -19,81 +24,6 @@ import {
     Camera,
     Music
 } from 'lucide-react';
-import AnimatedMockup from './components/AnimatedMockup';
-
-// Custom Header Component
-function Header() {
-    const [scrolled, setScrolled] = useState(false);
-    const [activeSection, setActiveSection] = useState('home');
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const isScrolled = window.scrollY > 50;
-            if (isScrolled !== scrolled) {
-                setScrolled(isScrolled);
-            }
-        };
-
-        document.addEventListener('scroll', handleScroll, { passive: true });
-        return () => document.removeEventListener('scroll', handleScroll);
-    }, [scrolled]);
-
-    const navItems = [
-        { name: 'Portfolio', key: 'portfolio' },
-        { name: 'Solutions', key: 'solutions' },
-        { name: 'Process', key: 'process' },
-        { name: 'Contact', key: 'contact' },
-    ];
-
-    return (
-        <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-                scrolled
-                    ? 'bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-lg'
-                    : 'bg-transparent'
-            }`}
-        >
-            <div className="container mx-auto px-6 py-4">
-                <div className="flex justify-between items-center">
-                    <div className="relative group">
-                        <div className={`text-3xl font-bold tracking-tight transition-colors duration-300 ${
-                            scrolled ? 'text-gray-900' : 'text-gray-900'
-                        }`}>
-                            Events
-                        </div>
-                        <div className="absolute -bottom-1 left-0 w-8 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full"></div>
-                    </div>
-
-                    <div className="hidden md:flex items-center space-x-8">
-                        {navItems.map((item) => (
-                            <a
-                                key={item.key}
-                                href={`#${item.key}`}
-                                className={`relative text-sm font-medium transition-all duration-300 ${
-                                    activeSection === item.key
-                                        ? 'text-gray-900'
-                                        : 'text-gray-600 hover:text-emerald-500'
-                                }`}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setActiveSection(item.key);
-                                }}
-                            >
-                                {item.name}
-                                {activeSection === item.key && (
-                                    <div className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full"></div>
-                                )}
-                            </a>
-                        ))}
-                        <button className="ml-4 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-emerald-500/25">
-                            Get Started
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    );
-}
 
 export default function Home() {
     const [currentService, setCurrentService] = useState(0);
@@ -106,9 +36,9 @@ export default function Home() {
             description:
                 "Transform your corporate gatherings into powerful networking experiences that drive business growth and team cohesion. Our expert team crafts professional environments that foster meaningful connections, enhance brand presence, and deliver measurable results for your organization's strategic objectives.",
             icon: <Target className="w-6 h-6" />,
-            color: 'emerald',
+            color: 'yellow',
             image:
-                'https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&auto=format&fit=crop&w=1469&q=80',
+                '/9.jpg',
         },
         {
             title: 'Dream Weddings',
@@ -116,9 +46,9 @@ export default function Home() {
             description:
                 'Create magical wedding experiences with meticulous attention to every detail, ensuring your special day is flawlessly executed. From intimate ceremonies to grand celebrations, we bring your dream wedding to life with elegance, sophistication, and personalized touches that reflect your unique love story.',
             icon: <Heart className="w-6 h-6" />,
-            color: 'rose',
+            color: 'blue',
             image:
-                'https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
+                '16.jpg',
         },
         {
             title: 'Brand Activations',
@@ -126,9 +56,9 @@ export default function Home() {
             description:
                 'Engage your audience through immersive brand experiences that create lasting impressions and drive customer loyalty. Our innovative activation strategies combine creativity with strategic thinking to maximize brand impact, audience engagement, and create authentic connections between your brand and consumers.',
             icon: <Zap className="w-6 h-6" />,
-            color: 'blue',
+            color: 'yellow',
             image:
-                'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
+                '/21.jpg',
         },
         {
             title: 'Social Celebrations',
@@ -136,9 +66,9 @@ export default function Home() {
             description:
                 "From intimate dinner parties to grand milestone celebrations, we craft personalized social events that reflect your unique vision and style. Our comprehensive approach ensures every detail contributes to an unforgettable experience that brings people together and creates cherished memories for years to come.",
             icon: <Users className="w-6 h-6" />,
-            color: 'purple',
+            color: 'blue',
             image:
-                'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80',
+                '0.jpg',
         },
     ];
 
@@ -180,63 +110,64 @@ export default function Home() {
 
     const getColorClasses = (color) => {
         const colors = {
-            emerald: 'from-emerald-500 to-teal-500',
-            rose: 'from-rose-500 to-pink-500',
-            blue: 'from-blue-500 to-cyan-500',
-            purple: 'from-purple-500 to-indigo-500',
-            cyan: 'from-cyan-500 to-blue-500',
-            orange: 'from-orange-500 to-yellow-500',
+            emerald: 'from-yellow-400 to-amber-500',
+            rose: 'from-yellow-500 to-amber-600',
+            blue: 'from-blue-500 to-blue-700',
+            purple: 'from-blue-600 to-blue-800',
+            cyan: 'from-yellow-400 to-blue-600',
+            orange: 'from-yellow-500 to-amber-500',
         };
         return colors[color] || colors.emerald;
     };
 
     const stats = [
-        { number: '500+', label: 'Events Delivered', icon: <Calendar className="w-8 h-8" />, color: 'emerald' },
+        { number: '500+', label: 'Events Delivered', icon: <Calendar className="w-8 h-8" />, color: 'yellow' },
         { number: '50K+', label: 'Happy Guests', icon: <Users className="w-8 h-8" />, color: 'blue' },
-        { number: '99%', label: 'Client Satisfaction', icon: <Star className="w-8 h-8" />, color: 'purple' },
-        { number: '8', label: 'Years Experience', icon: <Award className="w-8 h-8" />, color: 'rose' },
+        { number: '99%', label: 'Client Satisfaction', icon: <Star className="w-8 h-8" />, color: 'yellow' },
+        { number: '8', label: 'Years Experience', icon: <Award className="w-8 h-8" />, color: 'blue' },
     ];
 
     const socialLinks = [
-        { icon: <Music className="w-5 h-5" />, color: 'emerald' },
+        { icon: <Music className="w-5 h-5" />, color: 'yellow' },
         { icon: <Camera className="w-5 h-5" />, color: 'blue' },
-        { icon: <Mic className="w-5 h-5" />, color: 'purple' },
-        { icon: <Heart className="w-5 h-5" />, color: 'rose' },
+        { icon: <Mic className="w-5 h-5" />, color: 'yellow' },
+        { icon: <Heart className="w-5 h-5" />, color: 'blue' },
     ];
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-900 font-sans antialiased">
             <Header />
+            <CustomCursor /> {/* Add the cursor component here */}
 
             {/* Hero Section */}
-            <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24">
+            <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24" style={{ marginBottom: '-15vh' }}>
                 <div className="absolute inset-0">
-                    <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-emerald-300/20 to-teal-300/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-32 right-32 w-96 h-96 bg-gradient-to-r from-blue-300/20 to-cyan-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-purple-300/20 to-pink-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-yellow-300/20 to-amber-300/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-32 right-32 w-96 h-96 bg-gradient-to-r from-blue-300/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-yellow-300/20 to-blue-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
                 </div>
 
                 <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-                    <div className="mb-12">
-                        <div className="inline-flex items-center px-4 py-2 bg-white/50 backdrop-blur-sm rounded-full text-sm text-gray-700 mb-8 border border-gray-200 shadow-lg">
-                            <Sparkles className="w-4 h-4 mr-2 text-emerald-500" />
-                            Premium Event Management
-                        </div>
+                      
 
+                    <div className="mb-12" style={{ marginTop: '5vh' }}>
+ 
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-8">
                             <span className="block text-gray-900 mb-2">Crafting</span>
-                            <span className="block bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">Unforgettable</span>
+                            <span className="block bg-gradient-to-r from-yellow-400 via-amber-500 to-blue-600 bg-clip-text text-transparent">Unforgettable</span>
                             <span className="block text-gray-900">Experiences</span>
                         </h1>
-
-                        <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
+<section className="h-[110vh]  relative  "style={{ marginTop: '-25vh' }}>
+                <Animatedslide />
+            </section>
+                        <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light" style={{ marginTop: '-35vh' }}>
                             We transform your vision into reality through innovative event design,
                             meticulous planning, and flawless execution that exceeds expectations.
                         </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                        <button className="group flex items-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-xl shadow-emerald-500/25">
+                    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center" style={{ marginBottom: '10vh' }} >
+                        <button className="group flex items-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-semibold rounded-xl hover:from-yellow-500 hover:to-white-700 transition-all duration-300 transform hover:scale-105 shadow-xl shadow-yellow-500/25">
                             <span className="mr-2">Explore Our Work</span>
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                         </button>
@@ -248,16 +179,20 @@ export default function Home() {
                 </div>
             </section>
 
+            <section className="h-[110vh]  relative  "style={{ marginTop: '5vh' }}>
+                <GSAPHeroAnimation />
+            </section>
+
             {/* Services Section with Sticky Scroll Effect */}
-            <section id="solutions" className="relative bg-gray-100" ref={servicesContainerRef}>
+            <section id="solutions" className="relative bg-gray-100" ref={servicesContainerRef}style={{ marginTop: '-15vh' }}>
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center py-20">
-                        <div className="inline-flex items-center px-4 py-2 bg-gray-200 rounded-full text-sm text-emerald-500 mb-6">
+                        <div className="inline-flex items-center px-4 py-2 bg-gray-200 rounded-full text-sm text-yellow-600 mb-6">
                             <Target className="w-4 h-4 mr-2" />
                             Our Expertise
                         </div>
                         <h2 className="text-4xl md:text-6xl font-bold mb-6 text-gray-900">
-                            What We <span className="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">Create</span>
+                            What We <span className="bg-gradient-to-r from-yellow-400 to-blue-600 bg-clip-text text-transparent">Create</span>
                         </h2>
                         <p className="text-gray-600 text-lg max-w-3xl mx-auto mb-20">
                             From intimate gatherings to large-scale productions, we specialize in creating
@@ -265,11 +200,11 @@ export default function Home() {
                         </p>
                     </div>
 
-                    <div className="flex flex-col lg:flex-row gap-12 mb-20">
+                    <div className="flex flex-col lg:flex-row gap-12">
                         {/* Left Side - Service Descriptions */}
-                        <div className="lg:w-1/2">
+                        <div className="lg:w-1/2 mb-5">
                             <div
-                                className="space-y-0 mb-10"
+                                className="space-y-0 mb-20"
                                 style={{ height: `${services.length * 55}vh` }}
                             >
                                 {services.map((service, index) => (
@@ -288,7 +223,7 @@ export default function Home() {
                                                 {service.title}
                                             </h4>
 
-                                            <p className="text-xl font-semibold text-emerald-500 mb-6">
+                                            <p className="text-xl font-semibold text-yellow-600 mb-6">
                                                 {service.subtitle}
                                             </p>
 
@@ -303,11 +238,11 @@ export default function Home() {
 
                         {/* Right Side - Sticky Cards */}
                         <div className="lg:w-1/2">
-                            <div className="flex flex-col gap-0">
+                            <div className="flex flex-col gap-0 mb-10">
                                 {services.map((service, index) => (
                                     <div
                                         key={index}
-                                        className="sticky top-20 rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1"
+                                        className="sticky top-20 rounded-3xl overflow-hidden  hover:shadow-3xl transition-all duration-300 hover:-translate-y-1"
                                         style={{ height: '500px' }}
                                     >
                                         <div className="relative h-full group">
@@ -321,14 +256,8 @@ export default function Home() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
                                             <div className="absolute top-6 left-6 flex items-center space-x-3">
-                                                <div className="p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl">
-                                                    <div className={`p-2 rounded-xl bg-gradient-to-r ${getColorClasses(service.color)} text-white`}>
-                                                        {service.icon}
-                                                    </div>
-                                                </div>
-                                                <div className="px-4 py-2 bg-white/95 backdrop-blur-sm rounded-full shadow-xl">
-                                                    <span className="text-sm font-bold text-gray-900">0{index + 1}</span>
-                                                </div>
+                                               
+                                               
                                             </div>
 
                                             <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -336,7 +265,7 @@ export default function Home() {
                                                     <h5 className="text-2xl font-bold text-gray-900 mb-2">
                                                         {service.title}
                                                     </h5>
-                                                    <p className="text-emerald-500 font-semibold text-lg">
+                                                    <p className="text-yellow-600 font-semibold text-lg">
                                                         {service.subtitle}
                                                     </p>
                                                 </div>
@@ -351,7 +280,7 @@ export default function Home() {
             </section>
 
             {/* Stats Section */}
-            <section className="py-20 px-6 bg-white">
+            <section className="py-20 px-6 bg-white ">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                         {stats.map((stat, index) => (
@@ -371,12 +300,13 @@ export default function Home() {
                 </div>
             </section>
             
-            <section className="h-[200vh] bg-white relative">
+            {/* Animated Mockup Section */}
+            <section className="h-[110vh] bg-white relative mb-5">
                 <AnimatedMockup />
             </section>
             
             {/* CTA Section */}
-            <section id="contact" className="py-24 px-6 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 relative overflow-hidden">
+            <section id="contact" className="py-24 px-6 bg-gradient-to-r from-yellow-600 via-yellow to-yellow-600 relative overflow-hidden" style={{ marginTop: '2vh' }}>
                 <div className="absolute inset-0">
                     <div className="absolute top-20 left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
                     <div className="absolute bottom-20 right-20 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
@@ -386,12 +316,12 @@ export default function Home() {
                     <h2 className="text-4xl md:text-6xl font-bold mb-8 text-white">
                         Ready to Create Your<span className="block">Next Event?</span>
                     </h2>
-                    <p className="text-xl text-emerald-100 mb-12 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-xl text-yellow-100 mb-12 max-w-2xl mx-auto leading-relaxed">
                         Lets discuss your vision and transform it into an extraordinary experience
                         that your guests will remember forever.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                        <button className="flex items-center px-10 py-4 bg-white text-emerald-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-xl">
+                        <button className="flex items-center px-10 py-4 bg-white text-yellow-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 shadow-xl">
                             <span className="mr-2">Start Your Project</span>
                             <ArrowRight className="w-5 h-5" />
                         </button>
@@ -410,7 +340,7 @@ export default function Home() {
                             <div className="text-3xl font-bold text-gray-900 mb-4">
                                 Events
                             </div>
-                            <div className="w-8 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full mb-6"></div>
+                            <div className="w-8 h-1 bg-gradient-to-r from-yellow-400 to-blue-600 rounded-full mb-6"></div>
                             <p className="text-gray-600 leading-relaxed max-w-md mb-6">
                                 Creating extraordinary experiences through innovative event design,
                                 meticulous planning, and flawless execution.
@@ -427,24 +357,24 @@ export default function Home() {
                         <div>
                             <h4 className="text-gray-900 font-semibold mb-6">Services</h4>
                             <ul className="space-y-3 text-sm">
-                                <li><a href="#" className="text-gray-600 hover:text-emerald-500 transition-colors duration-300">Corporate Events</a></li>
-                                <li><a href="#" className="text-gray-600 hover:text-emerald-500 transition-colors duration-300">Wedding Planning</a></li>
-                                <li><a href="#" className="text-gray-600 hover:text-emerald-500 transition-colors duration-300">Brand Activations</a></li>
-                                <li><a href="#" className="text-gray-600 hover:text-emerald-500 transition-colors duration-300">Social Gatherings</a></li>
+                                <li><a href="#" className="text-gray-600 hover:text-yellow-600 transition-colors duration-300">Corporate Events</a></li>
+                                <li><a href="#" className="text-gray-600 hover:text-yellow-600 transition-colors duration-300">Wedding Planning</a></li>
+                                <li><a href="#" className="text-gray-600 hover:text-yellow-600 transition-colors duration-300">Brand Activations</a></li>
+                                <li><a href="#" className="text-gray-600 hover:text-yellow-600 transition-colors duration-300">Social Gatherings</a></li>
                             </ul>
                         </div>
 
                         <div>
                             <h4 className="text-gray-900 font-semibold mb-6">Contact</h4>
                             <div className="space-y-3 text-sm text-gray-600">
-                                <p className="hover:text-emerald-500 transition-colors duration-300 cursor-pointer">hello@events.com</p>
-                                <p className="hover:text-emerald-500 transition-colors duration-300 cursor-pointer">+1 (555) 123-4567</p>
-                                <p className="hover:text-emerald-500 transition-colors duration-300 cursor-pointer">New York, NY</p>
+                                <p className="hover:text-yellow-600 transition-colors duration-300 cursor-pointer">hello@events.com</p>
+                                <p className="hover:text-yellow-600 transition-colors duration-300 cursor-pointer">+1 (555) 123-4567</p>
+                                <p className="hover:text-yellow-600 transition-colors duration-300 cursor-pointer">New York, NY</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm">
+                    <div className="border-t border-yellow-200 mt-12 pt-8 text-center text-gray-500 text-sm">
                         <p>© 2025 Events. Creating extraordinary experiences worldwide.</p>
                     </div>
                 </div>
