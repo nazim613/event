@@ -27,7 +27,7 @@ import {
 
 export default function Home() {
     const [currentService, setCurrentService] = useState(0);
-    const servicesContainerRef = useRef(null);
+    const servicesContainerRef = useRef<HTMLElement>(null);
 
     const services = [
         {
@@ -48,7 +48,7 @@ export default function Home() {
             icon: <Heart className="w-6 h-6" />,
             color: 'blue',
             image:
-                '16.jpg',
+                '/16.jpg',
         },
         {
             title: 'Brand Activations',
@@ -68,15 +68,15 @@ export default function Home() {
             icon: <Users className="w-6 h-6" />,
             color: 'blue',
             image:
-                '0.jpg',
+                '/0.jpg',
         },
     ];
 
     useEffect(() => {
         const handleScroll = () => {
-            if (!servicesContainerRef.current) return;
-
             const container = servicesContainerRef.current;
+            if (!container) return;
+
             const containerRect = container.getBoundingClientRect();
             const windowHeight = window.innerHeight;
 
@@ -108,14 +108,15 @@ export default function Home() {
         };
     }, [currentService, services.length]);
 
-    const getColorClasses = (color) => {
-        const colors = {
+    const getColorClasses = (color: string) => {
+        const colors: Record<string, string> = {
             emerald: 'from-yellow-400 to-amber-500',
             rose: 'from-yellow-500 to-amber-600',
             blue: 'from-blue-500 to-blue-700',
             purple: 'from-blue-600 to-blue-800',
             cyan: 'from-yellow-400 to-blue-600',
             orange: 'from-yellow-500 to-amber-500',
+            yellow: 'from-yellow-400 to-amber-500',
         };
         return colors[color] || colors.emerald;
     };
@@ -184,7 +185,7 @@ export default function Home() {
             </section>
 
             {/* Services Section with Sticky Scroll Effect */}
-            <section id="solutions" className="relative bg-gray-100" ref={servicesContainerRef}style={{ marginTop: '-15vh' }}>
+            <section id="solutions" className="relative bg-gray-100" ref={servicesContainerRef} style={{ marginTop: '-15vh' }}>
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center py-20">
                         <div className="inline-flex items-center px-4 py-2 bg-gray-200 rounded-full text-sm text-yellow-600 mb-6">
