@@ -56,7 +56,7 @@ export default function AnimatedMockup() {
               transform: "rotate(15deg)", // cancel tilt for images
             }}
           >
-            <motion.div style={style} className="w-[80%] h-[100%]">
+            <motion.div style={style} className="w-[80%] h-[100%] ">
               <Image
                 src={[image1, image2, image3, image4][i]}
                 alt={`img${i + 1}`}
