@@ -42,7 +42,7 @@ export default function Home() {
         {
             title: 'CONNECTING PEOPLE, BUILDING FRIENDSHIPS',
             subtitle: 'Your perfect day, beautifully orchestrated',
-            description: "Moving to a new place or coming back after a long time can feel lonely. We make that transition easier by offering ready made opportunities to connect with others. Through our hangouts, people can quickly find friends, share experiences, and feel a sense of belonging and turning the city into a home..",
+            description: "Moving to a new place or coming back after a long time can feel lonely. We make that transition easier by offering ready made opportunities to connect with others. Through our hangouts, people can quickly find friends, share experiences, and feel a sense of belonging and turning the city into a home.",
             icon: <Heart className="w-6 h-6" />,
             color: 'blue',
             image:
@@ -405,7 +405,7 @@ export default function Home() {
                         <div className="lg:w-1/2 mb-15">
                             <div
                                 className="space-y-0 mb-15"
-                                style={{ height: `${services.length * 67}vh` }}
+                                style={{ height: `${services.length * 69}vh` }}
                             >
                                 {services.map((service, index) => (
                                     <div
@@ -419,11 +419,11 @@ export default function Home() {
                                                 </div>
                                             </div>
 
-                                            <h4 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
+                                            <h4 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-2">
                                                 {service.title}
                                             </h4>
 
-                                            <p className="text-xl font-semibold text-yellow-600 mb-6">
+                                            <p className="text-xl font-semibold text-yellow-600 mb-2">
                                                 {service.subtitle}
                                             </p>
 
