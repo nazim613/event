@@ -512,7 +512,7 @@ export default function Home() {
                         <span className="block living-breathe text-yellow-100 ">hangout?</span>
                     </h2>
                     <p className="text-xl text-yellow-100 mb-12 max-w-2xl mx-auto leading-relaxed fade-in-up stagger-2 living-float">
-                        Let's work together to unlock new opportunities and achieve our goals
+                        Lets work together to unlock new opportunities and achieve our goals
                         through a creative partnership.
 
                     </p>
