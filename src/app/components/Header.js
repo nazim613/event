@@ -6,10 +6,10 @@ import { Sparkles } from 'lucide-react';
 export default function Header() {
   return (
     <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-gray-900 text-white rounded-full px-6 py-2 shadow-xl flex items-center space-x-4">
+      <div className="bg-blue-900/10 text-black rounded-full px-6 py-2 shadow-xl flex items-center space-x-4">
         {/* Logo/Icon */}
-        <div className="w-8 h-8 rounded-full bg-yellow-600 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-5 h-5 text-white" />
+        <div className="w-10 h-9 rounded-full flex items-center justify-center flex-shrink-0">
+          <img src="/logo.png" alt="Your Company Logo" className="w-12 h-10" style={{marginLeft:"-25px"}} />
         </div>
 
         {/* Navigation Tabs */}

@@ -230,21 +230,21 @@ const GSAPHeroAnimation = () => {
         <div className="relative z-10 text-center max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl mx-auto px-4">
           {/* Logo */}
           <div className="logo mb-6 sm:mb-8 transform scale-0">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 mx-auto rounded-full border-2 border-black flex items-center justify-center">
-              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-black">OG</span>
+            <div className="w-20 h-20 sm:w-20 sm:h-20 lg:w-28 lg:h-28 mx-auto  rounded-full  flex items-center justify-center">
+          <img src="/logo.png" alt="logo" className="sm:w-20 sm:h-20 lg:w-28 lg:h-28"  />
             </div>
           </div>
 
           {/* Text Lines */}
           <div className="space-y-2 sm:space-y-3 lg:space-y-4 mb-8 sm:mb-10 lg:mb-12 text-black">
             <p className="line text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold transform translate-y-10 opacity-0 leading-tight">
-              Delve into coding without clutter.
+Our mission is simple  </p>
+            <p className="line text-sm sm:text-lg md:text-xl lg:text-2xl text-black-600 transform translate-y-10 opacity-0 leading-relaxed">
+               Less scrolling, more living, 
             </p>
             <p className="line text-sm sm:text-lg md:text-xl lg:text-2xl text-black-600 transform translate-y-10 opacity-0 leading-relaxed">
-              One subscription. Endless web design.
-            </p>
-            <p className="line text-sm sm:text-lg md:text-xl lg:text-2xl text-black-600 transform translate-y-10 opacity-0 leading-relaxed">
-              Take the fast lane to mastery.
+              that’s the essence
+ of Dehradun Hangouts
             </p>
           </div>
         </div>
