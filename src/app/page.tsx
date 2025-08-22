@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import Header from './components/Header';
 import CustomCursor from './components/CustomCursor';
 import GSAPHeroAnimation from './components/gsapanimation';
@@ -517,10 +518,12 @@ export default function Home() {
 
                     </p>
                     <div className="flex flex-col sm:flex-row gap-6 justify-center fade-in-up stagger-3">
-                        <button className="flex items-center px-10 py-4 bg-white text-yellow-600 font-semibold rounded-xl transition-smooth hover-lift hover-glow shadow-xl living-button">
-                            <span className="mr-2">Join Our Community</span>
-                            <ArrowRight className="w-5 h-5 living-icon" />
-                        </button>
+                        <Link href="/form">
+                            <button className="flex items-center px-10 py-4 bg-white text-yellow-600 font-semibold rounded-xl transition-smooth hover-lift hover-glow shadow-xl living-button">
+                                <span className="mr-2">Join Our Community</span>
+                                <ArrowRight className="w-5 h-5 living-icon" />
+                            </button>
+                        </Link>
                         <button className="px-10 py-4 border-2 border-white/30 text-white font-semibold rounded-xl transition-smooth hover:bg-white/10 hover:border-white/50 backdrop-blur-sm living-pulse">
                             View Our Past Hangouts
                         </button>
