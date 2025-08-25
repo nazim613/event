@@ -41,23 +41,44 @@ import Footer from '../components/Footer';
 // Import your API service function
 import { getEvents } from '../../../api-service';
 
+// Define the Event interface
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
+  price: string;
+  attendees: number;
+  maxAttendees: number;
+  hasLocation: boolean;
+  hasGuests: boolean;
+  imageUrl?: string;
+  rating?: number;
+  feedback?: string;
+  highlights: string[];
+}
+
 function EventsPage() {
-  const [activeTab, setActiveTab] = useState('upcoming');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   // New state variables for events and API status
-  const [allEvents, setAllEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch data from the API when the component mounts
   useEffect(() => {
     async function fetchEventsFromApi() {
       try {
         const eventsData = await getEvents();
-        setAllEvents(eventsData);
+        // Type assertion to tell TypeScript that eventsData matches our Event interface
+        setAllEvents(eventsData as Event[]);
       } catch (err) {
         console.error("Failed to fetch events:", err);
         setError("Failed to load events. Please try again.");
@@ -73,10 +94,10 @@ function EventsPage() {
   const upcomingEvents = allEvents.filter(event => new Date(event.date) >= now);
   const pastEvents = allEvents.filter(event => new Date(event.date) < now);
 
-  const categories = ['all', 'Adventure', 'Social', 'Culture', 'Workshop', 'Food'];
+  const categories = ['all', 'Adventure', 'Social', 'Culture', 'Workshop', 'Food'] as const;
 
-  const getColorClasses = (color) => {
-    const colors = {
+  const getColorClasses = (color: string): string => {
+    const colors: Record<string, string> = {
       Adventure: 'from-yellow-400 to-amber-500',
       Social: 'from-blue-500 to-blue-700',
       Culture: 'from-yellow-400 to-blue-600',
@@ -86,8 +107,8 @@ function EventsPage() {
     return colors[color] || 'from-yellow-400 to-amber-500';
   };
 
-  const getCategoryColor = (category) => {
-    const colors = {
+  const getCategoryColor = (category: string): string => {
+    const colors: Record<string, string> = {
       Adventure: 'text-yellow-500',
       Social: 'text-blue-500',
       Culture: 'text-purple-500',
@@ -97,7 +118,7 @@ function EventsPage() {
     return colors[category] || 'text-gray-500';
   };
 
-  const filterEvents = (events) => {
+  const filterEvents = (events: Event[]): Event[] => {
     return events.filter(event => {
       const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           event.location.toLowerCase().includes(searchTerm.toLowerCase());
@@ -106,10 +127,10 @@ function EventsPage() {
     });
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     const today = new Date();
-    const diffTime = date - today;
+    const diffTime = date.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays === 0) return 'today';
@@ -118,13 +139,13 @@ function EventsPage() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const getDayOfWeek = (dateString) => {
+  const getDayOfWeek = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { weekday: 'long' });
   };
 
-  const groupEventsByDate = (events) => {
-    const grouped = {};
+  const groupEventsByDate = (events: Event[]): Record<string, Event[]> => {
+    const grouped: Record<string, Event[]> = {};
     events.forEach(event => {
       const dateKey = event.date;
       if (!grouped[dateKey]) {
@@ -531,7 +552,7 @@ function EventsPage() {
                 <Calendar className="w-12 h-12 text-gray-400" />
               </div>
               <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">No events found</h3>
-              <p className="text-gray-500 mb-8 max-w-md mx-auto px-4">We couldn't find any events matching your search criteria. Try adjusting your filters or search terms.</p>
+              <p className="text-gray-500 mb-8 max-w-md mx-auto px-4">We could not find any events matching your search criteria. Try adjusting your filters or search terms.</p>
               <button 
                 onClick={() => {
                   setSearchTerm('');
@@ -565,7 +586,7 @@ function EventsPage() {
           </h2>
           
           <p className="text-lg md:text-xl text-yellow-100 mb-10 max-w-2xl mx-auto leading-relaxed fade-in-up stagger-2 px-4">
-            Don't miss out on amazing experiences. Join our community and be part of unforgettable adventures in Dehradun.
+            Do not miss out on amazing experiences. Join our community and be part of unforgettable adventures in Dehradun.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center fade-in-up stagger-3">
@@ -717,7 +738,7 @@ function EventsPage() {
                   {selectedEvent.feedback && (
                     <div>
                       <h3 className="text-base md:text-lg font-semibold mb-2">Feedback</h3>
-                      <p className="text-gray-300 italic text-sm md:text-base">"{selectedEvent.feedback}"</p>
+                      <p className="text-gray-300 italic text-sm md:text-base">{selectedEvent.feedback}</p>
                     </div>
                   )}
                 </div>

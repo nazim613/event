@@ -1,6 +1,7 @@
 // components/Header.js
 
 import React from 'react';
+import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 
 export default function Header() {
@@ -14,18 +15,18 @@ export default function Header() {
 
         {/* Navigation Tabs */}
         <nav className="flex items-center space-x-4">
-          <a
+          <Link
             href="/"
             className="text-sm font-medium hover:text-yellow-600 transition-colors"
           >
             Home
-          </a>
-          <a
+          </Link>
+          <Link
             href="/events"
             className="text-sm font-medium hover:text-yellow-600 transition-colors"
           >
             Events
-          </a>
+          </Link>
           <a
             href="#contact"
             className="text-sm font-medium hover:text-yellow-600 transition-colors"

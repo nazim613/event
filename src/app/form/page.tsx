@@ -7,16 +7,23 @@ import { ArrowRight, CheckCircle, Heart, Star, Zap, Users, MapPin, Phone, Mail, 
 import { createForm } from '../../../api-service'; // Import the API function
 import Footer from '../components/Footer';
 
+interface FormData {
+  name: string;
+  phone: string;
+  email: string;
+  whatsapp_group: string;
+}
+
 export default function JoinCommunityPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     phone: '',
     email: '',
     whatsapp_group: ''
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false); // New state to show success message
-  const [error, setError] = useState(null); // New state to store API errors
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false); // New state to show success message
+  const [error, setError] = useState<string | null>(null); // Fixed type to allow both string and null
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
