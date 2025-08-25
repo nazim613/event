@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import CustomCursor from '../components/CustomCursor';
 import { ArrowRight, CheckCircle, Heart, Star, Zap, Users, MapPin, Phone, Mail, User } from 'lucide-react';
+import { createForm } from '../../../api-service'; // Import the API function
+import Footer from '../components/Footer';
 
 export default function JoinCommunityPage() {
   const [formData, setFormData] = useState({
@@ -13,7 +15,8 @@ export default function JoinCommunityPage() {
     whatsapp_group: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false); // New state to show success message
+  const [error, setError] = useState(null); // New state to store API errors
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -22,38 +25,39 @@ export default function JoinCommunityPage() {
     });
   };
 
-  const handleSubmit = (e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     if (e) e.preventDefault();
     setIsSubmitted(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+    setError(null); // Clear any previous errors
+    setShowSuccess(false); // Hide success message on new submission
+
+    try {
+      // Call the API function from our service file with the form data
+      const response = await createForm(formData);
+      
+      // On success, show the success message box
       setShowSuccess(true);
-    }, 1000);
+      // Reset the form data after successful submission
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        whatsapp_group: ''
+      });
+
+    } catch (apiError) {
+      // If the API call fails, set the error state and handle it gracefully
+      console.error('API submission failed:', apiError);
+      setError('Failed to submit form. Please try again.');
+    } finally {
+      // Regardless of success or failure, set isSubmitted to false to enable the button again
+      setIsSubmitted(false);
+    }
   };
 
-  if (showSuccess) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-blue-50 flex items-center justify-center px-6">
-        <div className="text-center animate-fade-in">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-6 animate-bounce">
-            <CheckCircle className="w-12 h-12 text-green-600" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to the Family! 🎉</h1>
-          <p className="text-gray-600 text-lg mb-8">Your application has been submitted successfully. We will add you to our WhatsApp group soon!</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white font-semibold rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-          >
-            Back to Form
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-blue-50 text-gray-900 font-sans antialiased">
+    <div className="min-h-screen bg-gradient-to-br from-white-50 via-white to-white-50 text-gray-900 font-sans antialiased">
       <Header />
       <CustomCursor />
 
@@ -67,7 +71,7 @@ export default function JoinCommunityPage() {
       <section className="relative min-h-screen flex items-center justify-center py-32 px-6">
         <div className="relative z-10 max-w-4xl w-full mx-auto">
           {/* Form container with glassmorphism effect */}
-          <div className="p-8 md:p-12 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-slide-up">
+          <form className="p-8 md:p-12 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-slide-up" onSubmit={handleSubmit}>
             {/* Header section */}
             <div className="text-center mb-10">
               <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-200 rounded-full text-sm text-yellow-700 mb-6 animate-bounce-gentle">
@@ -166,11 +170,17 @@ export default function JoinCommunityPage() {
                   </label>
                 </div>
               </div>
+              
+              {/* Display error message if there is one */}
+              {error && (
+                <div className="p-4 text-center bg-red-100 border border-red-200 text-red-600 rounded-xl animate-fade-in-up">
+                  <p>{error}</p>
+                </div>
+              )}
 
               <div className="pt-6 animate-fade-in-up delay-700">
                 <button
-                  type="button"
-                  onClick={handleSubmit}
+                  type="submit" // Changed to type="submit" for proper form behavior
                   disabled={isSubmitted}
                   className="group w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
                 >
@@ -188,6 +198,22 @@ export default function JoinCommunityPage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
                 </button>
               </div>
+
+              {/* Success message box, shown conditionally */}
+              {showSuccess && (
+                <div className="p-4 text-center bg-green-100 border border-green-200 text-green-600 rounded-xl animate-fade-in-up mt-4">
+                  <p className="flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                    Your application has been submitted successfully.
+                  </p>
+                  <button
+                    onClick={() => window.location.href = '/'}
+                    className="mt-2 text-green-700 font-semibold hover:underline"
+                  >
+                    Back to Home
+                  </button>
+                </div>
+              )}
 
               {/* Additional info section */}
               <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100 animate-fade-in-up delay-800">
@@ -211,64 +237,11 @@ export default function JoinCommunityPage() {
                 </ul>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </section>
 
-      {/* Enhanced footer */}
-      <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-16 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/5 to-amber-600/5"></div>
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div className="md:col-span-2 animate-fade-in-left">
-              <div className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent mb-4">
-                Dehradun Hangouts
-              </div>
-              <div className="w-12 h-1 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full mb-6 animate-pulse"></div>
-              <p className="text-gray-300 leading-relaxed max-w-md mb-6">
-                Dehradun Hangouts is a vibrant community initiative designed to connect people through shared experiences and unforgettable memories.
-              </p>
-            </div>
-            <div className="animate-fade-in-up delay-200">
-              <h4 className="text-white font-semibold mb-6">What We Do</h4>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors flex items-center group">
-                  <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  CREATING A COMMUNITY
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors flex items-center group">
-                  <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  CONNECTING PEOPLES
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-yellow-400 transition-colors flex items-center group">
-                  <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  EXPLORING PLACES
-                </a></li>
-              </ul>
-            </div>
-            <div className="animate-fade-in-up delay-300">
-              <h4 className="text-white font-semibold mb-6">Contact</h4>
-              <div className="space-y-3 text-sm text-gray-300">
-                <p className="hover:text-yellow-400 transition-colors cursor-pointer flex items-center group">
-                  <Mail className="w-4 h-4 mr-2 group-hover:text-yellow-400" />
-                  dehradunhangouts@gmail.com
-                </p>
-                <p className="hover:text-yellow-400 transition-colors cursor-pointer flex items-center group">
-                  <Phone className="w-4 h-4 mr-2 group-hover:text-yellow-400" />
-                  +91 9997997266
-                </p>
-                <p className="hover:text-yellow-400 transition-colors cursor-pointer flex items-center group">
-                  <MapPin className="w-4 h-4 mr-2 group-hover:text-yellow-400" />
-                  Dehradun, IN
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400 text-sm animate-fade-in-up delay-400">
-            <p>© 2025 Dehradun Hangouts. Creating extraordinary moments worldwide.</p>
-          </div>
-        </div>
-      </footer>
+     <Footer/>
 
       <style jsx>{`
         @keyframes float {

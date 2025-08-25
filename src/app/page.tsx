@@ -7,6 +7,7 @@ import CustomCursor from './components/CustomCursor';
 import GSAPHeroAnimation from './components/gsapanimation';
 import AnimatedMockup from './components/AnimatedMockup';
 import Animatedslide from './components/Animatedslides';
+import Footer from './components/Footer';
 import {
     Calendar,
     Users,
@@ -520,7 +521,7 @@ export default function Home() {
                     <div className="flex flex-col sm:flex-row gap-6 justify-center fade-in-up stagger-3">
                         <Link href="/form">
                             <button className="flex items-center px-10 py-4 bg-white text-yellow-600 font-semibold rounded-xl transition-smooth hover-lift hover-glow shadow-xl living-button">
-                                <span className="mr-2">Join Our Community</span>
+                                <span className="mr-2">Join Community</span>
                                 <ArrowRight className="w-5 h-5 living-icon" />
                             </button>
                         </Link>
@@ -531,53 +532,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="bg-white py-16 px-6">
-                <div className="max-w-6xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-                        <div className="md:col-span-2 fade-in-left">
-                            <div className="text-3xl font-bold text-gray-900 mb-4">
-                                Dehradun Hangouts
-                            </div>
-                            <div className="w-8 h-1 bg-gradient-to-r from-yellow-400 to-blue-600 rounded-full mb-6 shimmer-effect"></div>
-                            <p className="text-gray-600 leading-relaxed max-w-md mb-6">
-                                Dehradun Hangouts is a vibrant community
-                                initiative designed to connect people through
-                                shared experiences.
-                            </p>
-                            <div className="flex space-x-4">
-                                {socialLinks.map((social, index) => (
-                                    <div key={index} className={`p-3 rounded-xl bg-gradient-to-r ${getColorClasses(social.color)} text-white transition-smooth hover-scale cursor-pointer shadow-lg`}>
-                                        {social.icon}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="fade-in-up stagger-2">
-                            <h4 className="text-gray-900 font-semibold mb-6">What We Do</h4>
-                            <ul className="space-y-3 text-sm">
-                                <li><a href="#" className="text-gray-600 hover:text-yellow-600 transition-smooth"> CREATING A COMMUNITY</a></li>
-                                <li><a href="#" className="text-gray-600 hover:text-yellow-600 transition-smooth"> CONNECTING PEOPLES</a></li>
-                                <li><a href="#" className="text-gray-600 hover:text-yellow-600 transition-smooth"> EXPLORING PLACES</a></li>
-                            </ul>
-                        </div>
-
-                        <div className="fade-in-up stagger-3">
-                            <h4 className="text-gray-900 font-semibold mb-6">Contact</h4>
-                            <div className="space-y-3 text-sm text-gray-600">
-                                <p className="hover:text-yellow-600 transition-smooth cursor-pointer">dehradunhangouts@gmail.com</p>
-                                <p className="hover:text-yellow-600 transition-smooth cursor-pointer">+91 9997997266</p>
-                                <p className="hover:text-yellow-600 transition-smooth cursor-pointer">Dehradun, IN</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-t border-yellow-200 mt-12 pt-8 text-center text-gray-500 text-sm fade-in-up stagger-4">
-                        <p>© 2025 Dehradun Hangouts. Creating extraordinary moments worldwide.</p>
-                    </div>
-                </div>
-            </footer>
+            <Footer/>
         </div>
     );
 }
