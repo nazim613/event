@@ -27,12 +27,19 @@ export default function Header() {
           >
             Events
           </Link>
-          <a
-            href="#contact"
+          <Link
+            href="/community"
+            className="text-sm font-medium hover:text-yellow-600 transition-colors"
+          >
+            Community
+          </Link>
+          <Link
+            href="/contact"
             className="text-sm font-medium hover:text-yellow-600 transition-colors"
           >
             Contact
-          </a>
+          </Link>
+
         </nav>
       </div>
     </header>
