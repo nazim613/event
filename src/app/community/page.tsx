@@ -21,7 +21,8 @@ import {
   UserPlus,
   MapPin,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Image as ImageIcon // Renamed to avoid conflict with interface
 } from 'lucide-react';
 import Footer from '../components/Footer';
 import LoginModal from '../components/LoginModal';
@@ -55,6 +56,7 @@ interface Post {
   authorId: string;
   authorName?: string;
   timestamp: string;
+  postImageUrl?: string; // Added for image posts
 }
 
 interface User {
@@ -74,9 +76,11 @@ const CommunityPage = () => {
   const [userId, setUserId] = useState('');
   const [token, setToken] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
-  
+
   const [activeTab, setActiveTab] = useState('Home');
   const [newPost, setNewPost] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null); // New state for image file
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null); // New state for image preview
   const [eventsTab, setEventsTab] = useState('upcoming');
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -134,21 +138,37 @@ const CommunityPage = () => {
     };
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreviewUrl(URL.createObjectURL(file));
+    } else {
+      setImageFile(null);
+      setImagePreviewUrl(null);
+    }
+  };
+
   const handlePostSubmit = async () => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
-    if (newPost.trim()) {
+    if (newPost.trim() || imageFile) {
       try {
+        // --- UPDATED LOGIC ---
+        // Pass the image file directly to the createCommunityPost function
         const newPostData = await createCommunityPost({
           content: newPost,
           authorId: userId,
+          imageFile: imageFile, // Pass the image file here
           token: token
         });
 
         setPosts(prevPosts => [newPostData as Post, ...prevPosts]);
         setNewPost('');
+        setImageFile(null);
+        setImagePreviewUrl(null);
       } catch (error) {
         console.error('Failed to create post:', error);
       }
@@ -175,7 +195,7 @@ const CommunityPage = () => {
           : post
       ));
 
-      await togglePostLike(postId, newIsLikedStatus,token);
+      await togglePostLike(postId, newIsLikedStatus, token);
 
     } catch (error) {
       console.error('Failed to toggle like:', error);
@@ -319,7 +339,31 @@ const CommunityPage = () => {
                   disabled={!isLoggedIn}
                 />
               </div>
-              <div className="flex justify-end">
+              {imagePreviewUrl && (
+                <div className="mb-4 relative">
+                  <img src={imagePreviewUrl} alt="Image Preview" className="max-w-full h-auto rounded-lg" />
+                  <button
+                    onClick={() => { setImagePreviewUrl(null); setImageFile(null); }}
+                    className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-1"
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
+              <div className="flex justify-between items-center mt-4">
+                <label className={`flex items-center space-x-2 px-4 py-2 rounded-lg cursor-pointer transition-colors ${
+                  isLoggedIn ? 'text-blue-500 hover:bg-blue-50' : 'text-gray-400 cursor-not-allowed'
+                }`}>
+                  <ImageIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium">Add Photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                    disabled={!isLoggedIn}
+                  />
+                </label>
                 <button
                   onClick={handlePostSubmit}
                   className={`px-6 py-2 text-white font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 ${
@@ -372,6 +416,11 @@ const CommunityPage = () => {
                     {/* Post Content */}
                     <div className="px-6 pb-4">
                       <p className="text-gray-800 leading-relaxed">{post.content}</p>
+                      {post.postImageUrl && (
+                        <div className="mt-4">
+                          <img src={post.postImageUrl} alt="Post Image" className="max-w-full h-auto rounded-lg" />
+                        </div>
+                      )}
                     </div>
 
                     {/* Post Actions */}
@@ -509,12 +558,12 @@ const CommunityPage = () => {
                       </div>
 
                       {eventsTab === 'upcoming' && (
-  <Link href="/events" as={`/events`} passHref legacyBehavior>
-    <button className="w-full mt-3 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white text-xs font-medium rounded-lg hover:shadow-md transition-all duration-200">
-      View Event
-    </button>
-  </Link>
-)}
+                        <Link href="/events" as={`/events`} passHref legacyBehavior>
+                          <button className="w-full mt-3 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white text-xs font-medium rounded-lg hover:shadow-md transition-all duration-200">
+                            View Event
+                          </button>
+                        </Link>
+                      )}
                     </div>
                   ))
                 )}
@@ -534,7 +583,7 @@ const CommunityPage = () => {
               </Link>
             </div>
 
-            
+
           </div>
         </div>
       </div>

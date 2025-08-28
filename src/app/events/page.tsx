@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { 
   Calendar, 
@@ -62,10 +63,10 @@ interface Event {
 }
 
 function EventsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   // New state variables for events and API status
   const [allEvents, setAllEvents] = useState<Event[]>([]);
@@ -155,6 +156,23 @@ function EventsPage() {
     });
     return grouped;
   };
+
+  const handleEventClick = (eventId: string) => {
+  // Convert the string ID to a number
+  const numericId = parseInt(eventId, 10);
+
+  // Check if the conversion was successful
+  if (isNaN(numericId)) {
+    console.error('Invalid event ID:', eventId);
+    return;
+  }
+
+  console.log('Navigating to event with numeric ID:', numericId);
+  console.log('Full URL:', `/eventdetails/${numericId}`);
+
+  // Navigate to the event details page with the numeric ID
+  router.push(`/eventdetails/${numericId}`);
+};
 
   const eventsToDisplay = activeTab === 'upcoming' ? upcomingEvents : pastEvents;
   const filteredEvents = filterEvents(eventsToDisplay);
@@ -365,10 +383,7 @@ function EventsPage() {
                       <div className="absolute -left-14 top-8 w-3 h-px bg-gray-300 hidden md:block"></div>
                       
                       {/* Event Card */}
-                      <div 
-                        className="bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl p-4 md:p-6 transition-smooth cursor-pointer hover-lift shadow-sm hover:shadow-lg"
-                        onClick={() => setSelectedEvent(event)}
-                      >
+                      <div className="bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-2xl p-4 md:p-6 transition-smooth cursor-pointer hover-lift shadow-sm hover:shadow-lg">
                         {/* Mobile Header with Image and Time */}
                         <div className="flex items-start justify-between mb-4 lg:hidden">
                           <div className="flex items-center gap-3">
@@ -466,7 +481,7 @@ function EventsPage() {
                             </div>
                           </div>
                           
-                          {/* Desktop Event Image and Actions */}
+                          {/* Desktop Event Image */}
                           <div className="hidden lg:flex flex-col items-center gap-4 ml-6">
                             {/* Event Image - Desktop */}
                             {event.imageUrl ? (
@@ -496,38 +511,24 @@ function EventsPage() {
                           </div>
                         </div>
 
-                        {/* Action Button - Full width on mobile, positioned at bottom */}
-                        <div className="mt-4 lg:hidden">
-                          {activeTab === 'upcoming' ? (
-                            <button className="w-full px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border border-gray-600">
-                              <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                                <ArrowRight className="w-3 h-3" />
-                              </div>
-                              <span>Manage Event</span>
-                            </button>
-                          ) : (
-                            <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 shadow-lg hover-glow">
-                              <span>View Highlights</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
+                        {/* Action Buttons - Full width on mobile, side by side on desktop */}
+                        <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                          {/* View More Button */}
+                          <button 
+                            onClick={() => handleEventClick(event.id)}
+                            className="flex-1 sm:flex-none px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border border-gray-600"
+                          >
+                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                              <ArrowRight className="w-3 h-3" />
+                            </div>
+                            <span>View Details</span>
+                          </button>
 
-                        {/* Desktop Action Button */}
-                        <div className="hidden lg:flex justify-end mt-4">
-                          {activeTab === 'upcoming' ? (
-                            <button className="px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 whitespace-nowrap shadow-lg hover:shadow-xl transform hover:scale-[1.02] border border-gray-600">
-                              <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                                <ArrowRight className="w-3 h-3" />
-                              </div>
-                              <span>Manage</span>
-                            </button>
-                          ) : (
-                            <button className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 whitespace-nowrap shadow-lg hover-glow">
-                              <span>View Highlights</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </button>
-                          )}
+                          {/* Register Button - Always visible for both upcoming and past events */}
+                          <button className="flex-1 sm:flex-none px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 shadow-lg hover-glow">
+                            <UserPlus className="w-4 h-4" />
+                            <span>{activeTab === 'past' ? 'See Results' : 'Register'}</span>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -605,148 +606,6 @@ function EventsPage() {
       </section>
       
       <Footer />
-
-      {/* Event Details Slide-out Panel */}
-      {selectedEvent && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity"
-            onClick={() => setSelectedEvent(null)}
-          />
-          
-          {/* Slide-out Panel */}
-          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 transform transition-transform shadow-2xl">
-            <div className="flex flex-col h-full">
-              {/* Header */}
-              <div className="flex items-center justify-between p-3 border-b border-gray-700 bg-gray-800">
-                <div className="text-gray-400 text-sm">
-                  
-                </div>
-                <button 
-                  onClick={() => setSelectedEvent(null)}
-                  className="p-1 hover:bg-gray-700 rounded"
-                >
-                  <span className="text-gray-400 text-lg">×</span>
-                </button>
-              </div>
-
-              {/* Event Image */}
-              <div className="relative h-48 flex-shrink-0">
-                <div 
-                  className="w-full h-full flex items-center justify-center text-white font-bold text-lg"
-                  style={{
-                    background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24)',
-                    backgroundSize: '400% 400%',
-                    animation: 'gradientShift 3s ease infinite'
-                  }}
-                >
-                  JOIN<br />ME AT<br />THE<br />PARTY
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto p-4 md:p-6 text-white">
-                {/* Event Type */}
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                  <span className="text-pink-400 text-sm font-medium">Private Event</span>
-                </div>
-
-                {/* Event Title */}
-                <h1 className="text-xl md:text-2xl font-bold mb-4 text-black/50">{selectedEvent.title}</h1>
-
-                {/* Host Info */}
-                <div className="flex items-center gap-3 mb-6">
-                  
-                  <span className="text-black/50 text-sm md:text-base">Hosted by </span>
-                </div>
-
-                {/* Date and Time */}
-                <div className="bg-gray-800 rounded-lg p-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-xs text-gray-400 uppercase tracking-wide mb-1">
-                      {new Date(selectedEvent.date).toLocaleDateString('en-US', { month: 'short' })}
-                    </div>
-                    <div className="text-xl md:text-2xl font-bold text-white mb-1">
-                      {new Date(selectedEvent.date).getDate()}
-                    </div>
-                    <div className="text-sm text-gray-300">
-                      {new Date(selectedEvent.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                    </div>
-                    <div className="text-sm text-gray-300 mt-2">
-                      {selectedEvent.time} - {selectedEvent.time === '21:00' ? '22:00' : '17:00'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Registration Button */}
-                <button className="w-full bg-gray-700 hover:bg-yellow-600 text-white py-3 rounded-lg font-semibold mb-6 transition-colors">
-                  Registration
-                </button>
-
-                {/* Event Details */}
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-base md:text-lg text-black/70 font-semibold mb-2">Description</h3>
-                    <p className="text-black/50 leading-relaxed text-sm md:text-base">{selectedEvent.description}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base md:text-lg text-black/70 font-semibold mb-2">Location</h3>
-                    <p className="text-black/50 text-sm md:text-base">{selectedEvent.location || 'Location to be announced'}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base md:text-lg text-black/70 font-semibold mb-2">Attendees</h3>
-                    <p className="text-black/50 text-sm md:text-base">{selectedEvent.attendees} of {selectedEvent.maxAttendees} joined</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base md:text-lg text-black/70 font-semibold mb-2">Price</h3>
-                    <p className="text-green-400 font-bold text-lg">{selectedEvent.price}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base md:text-lg text-black/70 font-semibold mb-2">Category</h3>
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${selectedEvent.category === 'Adventure' ? 'bg-black/20 text-black' : selectedEvent.category === 'Social' ? 'bg-blue-500/20 text-blue-300' : 'bg-purple-500/20 text-purple-300'}`}>
-                      {selectedEvent.category}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold mb-2">Highlights</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedEvent.highlights.map((highlight, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs">
-                          {highlight}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {selectedEvent.rating && (
-                    <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-2">Rating</h3>
-                      <div className="flex items-center gap-2">
-                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                        <span className="text-yellow-400 font-semibold">{selectedEvent.rating}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedEvent.feedback && (
-                    <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-2">Feedback</h3>
-                      <p className="text-gray-300 italic text-sm md:text-base">{selectedEvent.feedback}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }

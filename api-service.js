@@ -1,6 +1,9 @@
 // Use the environment variable for the base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// Import Supabase client
+import { supabase } from './supabaseClient'; // Make sure this path is correct
+
 /**
  * A reusable function to handle API requests.
  * It abstracts away the base URL and error handling.
@@ -9,7 +12,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
  * @returns {Promise<object>} The JSON response data.
  */
 const apiCall = async (endpoint, options = {}) => {
-  // Check if the API base URL is defined
   if (!API_BASE_URL) {
     throw new Error("API base URL is not configured. Please check your .env.local file.");
   }
@@ -23,7 +25,6 @@ const apiCall = async (endpoint, options = {}) => {
       throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
     }
 
-    // We check for response.status === 204 to handle no content responses.
     if (response.status === 204) {
       return {};
     }
@@ -67,7 +68,11 @@ export const getCommunityPosts = () => {
   return apiCall('/community/posts');
 };
 
-// Updated loginUser to separate token and user data in localStorage
+/**
+ * Updated loginUser to also sign in with Supabase client.
+ * @param {object} credentials The user's login credentials.
+ * @returns {Promise<object>} The server's response.
+ */
 export const loginUser = async (credentials) => {
   try {
     const data = await apiCall('/auth/login', {
@@ -79,12 +84,19 @@ export const loginUser = async (credentials) => {
     });
 
     if (data && data.user && data.token) {
-      // Store token and non-sensitive user data separately for better security
+      // Store token and non-sensitive user data separately
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({
         id: data.user.id,
         name: data.user.name,
       }));
+
+      // A crucial step: Tell the Supabase client about the user session.
+      // This allows it to make authenticated calls to storage.
+      await supabase.auth.setSession({
+        access_token: data.token,
+        refresh_token: data.refreshToken,
+      });
     }
     
     return data;
@@ -111,16 +123,49 @@ export const registerUser = async (userData) => {
   }
 };
 
-export const createCommunityPost = async (postData) => {
-  const { content, authorId, token } = postData;
+/**
+ * Creates a new community post, including an optional image upload to Supabase Storage.
+ * @param {object} postData The data for the post.
+ * @param {string} postData.content The content of the post.
+ * @param {string} postData.authorId The ID of the author.
+ * @param {File | null} postData.imageFile The image file to upload.
+ * @param {string} postData.token The user's authentication token.
+ * @returns {Promise<object>} The server's response.
+ */
+export const createCommunityPost = async ({ content, authorId, imageFile, token }) => {
+  let postImageUrl = null;
+
+  // Step 1: Upload the image to Supabase Storage if an image file exists
+  if (imageFile) {
+    const fileName = `${Date.now()}_${imageFile.name.replace(/\s/g, '_')}`;
+    const filePath = `public/${authorId}/${fileName}`;
+    
+    // The RLS policy will now pass because the Supabase client is authenticated
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('community_posts') // Replace 'community-images' with your bucket name
+      .upload(filePath, imageFile);
+
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError);
+      throw new Error('Failed to upload image.');
+    }
+
+    // Step 2: Get the public URL for the uploaded image
+    const { data: publicUrlData } = supabase.storage
+      .from('community_posts') // Replace with your bucket name
+      .getPublicUrl(uploadData.path);
+
+    postImageUrl = publicUrlData.publicUrl;
+  }
+
+  // Step 3: Call your backend API with the post content and image URL
   return apiCall('/community/posts', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // This is correct, token is used for authentication
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ content, authorId }),
+    body: JSON.stringify({ content, authorId, postImageUrl }), // Send the image URL to your backend
   });
 };
 

@@ -31,7 +31,7 @@ export interface AuthData {
 
 // Event related types
 export interface Event {
-  id: string;
+  id: number;
   title: string;
   description: string;
   date: string;
