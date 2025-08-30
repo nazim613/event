@@ -1,0 +1,316 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Header from '../components/Header';
+import CustomCursor from '../components/CustomCursor';
+import { ArrowRight, CheckCircle, Heart, Star, Zap, Users, MapPin, Phone, Mail, User } from 'lucide-react';
+import { createForm } from '../../../api-service'; // Import the API function
+import Footer from '../components/Footer';
+
+interface FormData {
+  name: string;
+  phone: string;
+  email: string;
+  whatsapp_group: string;
+}
+
+export default function JoinCommunityPage() {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    phone: '',
+    email: '',
+    whatsapp_group: ''
+  });
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false); // New state to show success message
+  const [error, setError] = useState<string | null>(null); // Fixed type to allow both string and null
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e?: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+    if (e) e.preventDefault();
+    setIsSubmitted(true);
+    setError(null); // Clear any previous errors
+    setShowSuccess(false); // Hide success message on new submission
+
+    try {
+      // Call the API function from our service file with the form data
+      const response = await createForm(formData);
+      
+      // On success, show the success message box
+      setShowSuccess(true);
+      // Reset the form data after successful submission
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        whatsapp_group: ''
+      });
+
+    } catch (apiError) {
+      // If the API call fails, set the error state and handle it gracefully
+      console.error('API submission failed:', apiError);
+      setError('Failed to submit form. Please try again.');
+    } finally {
+      // Regardless of success or failure, set isSubmitted to false to enable the button again
+      setIsSubmitted(false);
+    }
+  };
+
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-white-50 via-white to-white-50 text-gray-900 font-sans antialiased">
+      <Header />
+      <CustomCursor />
+
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-r from-yellow-300/10 to-amber-300/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute top-1/2 -right-20 w-80 h-80 bg-gradient-to-r from-blue-300/10 to-purple-300/5 rounded-full blur-3xl animate-float-delayed"></div>
+        <div className="absolute bottom-20 left-1/3 w-64 h-64 bg-gradient-to-r from-pink-300/10 to-yellow-300/5 rounded-full blur-3xl animate-pulse"></div>
+      </div>
+
+      <section className="relative min-h-screen flex items-center justify-center py-32 px-6">
+        <div className="relative z-10 max-w-4xl w-full mx-auto">
+          {/* Form container with glassmorphism effect */}
+          <form className="p-8 md:p-12 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-slide-up" onSubmit={handleSubmit}>
+            {/* Header section */}
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-200 rounded-full text-sm text-yellow-700 mb-6 animate-bounce-gentle">
+                <Star className="w-4 h-4 mr-2 animate-spin-slow" />
+                Join Our Community
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-yellow-700 to-amber-600 bg-clip-text text-transparent mb-4 animate-fade-in-up">
+                Become a Part of Our Family
+              </h1>
+              <p className="text-gray-600 text-lg leading-relaxed animate-fade-in-up delay-200">
+                Fill out the form below to join the Dehradun Hangouts WhatsApp group and start making connections.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="animate-fade-in-up delay-300">
+                <label htmlFor="name" className="block text-gray-700 font-semibold mb-2 flex items-center">
+                  <User className="w-4 h-4 mr-2 text-yellow-600" />
+                  Your Full Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-6 py-4 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300 hover:bg-white/90 hover:shadow-md"
+                  placeholder="Enter your full name"
+                />
+              </div>
+              
+              <div className="animate-fade-in-up delay-400">
+                <label htmlFor="phone" className="block text-gray-700 font-semibold mb-2 flex items-center">
+                  <Phone className="w-4 h-4 mr-2 text-yellow-600" />
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-6 py-4 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300 hover:bg-white/90 hover:shadow-md"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+
+              <div className="animate-fade-in-up delay-500">
+                <label htmlFor="email" className="block text-gray-700 font-semibold mb-2 flex items-center">
+                  <Mail className="w-4 h-4 mr-2 text-yellow-600" />
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-6 py-4 bg-white/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300 hover:bg-white/90 hover:shadow-md"
+                  placeholder="Enter your email address"
+                />
+              </div>
+
+              <div className="animate-fade-in-up delay-600">
+                <label className="block text-gray-700 font-semibold mb-4 flex items-center">
+                  <Zap className="w-4 h-4 mr-2 text-yellow-600" />
+                  Are you part of the WhatsApp hangout?
+                </label>
+                <div className="flex items-center space-x-8">
+                  <label className="flex items-center cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="whatsapp_group" 
+                      value="yes" 
+                      checked={formData.whatsapp_group === 'yes'}
+                      onChange={handleInputChange}
+                      className="w-5 h-5 text-yellow-600 bg-white border-2 border-gray-300 focus:ring-yellow-400 focus:ring-2" 
+                      required 
+                    />
+                    <span className="ml-3 text-gray-700 group-hover:text-yellow-600 transition-colors">Yes, Im already in</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="whatsapp_group" 
+                      value="no" 
+                      checked={formData.whatsapp_group === 'no'}
+                      onChange={handleInputChange}
+                      className="w-5 h-5 text-yellow-600 bg-white border-2 border-gray-300 focus:ring-yellow-400 focus:ring-2" 
+                      required 
+                    />
+                    <span className="ml-3 text-gray-700 group-hover:text-yellow-600 transition-colors">No, add me please!</span>
+                  </label>
+                </div>
+              </div>
+              
+              {/* Display error message if there is one */}
+              {error && (
+                <div className="p-4 text-center bg-red-100 border border-red-200 text-red-600 rounded-xl animate-fade-in-up">
+                  <p>{error}</p>
+                </div>
+              )}
+
+              <div className="pt-6 animate-fade-in-up delay-700">
+                <button
+                  type="submit" // Changed to type="submit" for proper form behavior
+                  disabled={isSubmitted}
+                  className="group w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden"
+                >
+                  {isSubmitted ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="mr-2">Submit Application</span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                    </>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+                </button>
+              </div>
+
+              {/* Success message box, shown conditionally */}
+              {showSuccess && (
+                <div className="p-4 text-center bg-green-100 border border-green-200 text-green-600 rounded-xl animate-fade-in-up mt-4">
+                  <p className="flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                    Your application has been submitted successfully.
+                  </p>
+                  <button
+                    onClick={() => window.location.href = '/'}
+                    className="mt-2 text-green-700 font-semibold hover:underline"
+                  >
+                    Back to Home
+                  </button>
+                </div>
+              )}
+
+              {/* Additional info section */}
+              <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100 animate-fade-in-up delay-800">
+                <div className="flex items-center mb-3">
+                  <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
+                  <h3 className="font-semibold text-gray-900">What happens next?</h3>
+                </div>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li className="flex items-start">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    We will review your application within 24 hours
+                  </li>
+                  <li className="flex items-start">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    You will receive a WhatsApp invitation link
+                  </li>
+                  <li className="flex items-start">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    Welcome to the most awesome community in Dehradun! 🎉
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+     <Footer/>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(20px, -20px) rotate(1deg); }
+          66% { transform: translate(-10px, 10px) rotate(-1deg); }
+        }
+        
+        @keyframes float-delayed {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(-15px, 15px) rotate(-1deg); }
+          66% { transform: translate(25px, -10px) rotate(1deg); }
+        }
+        
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slide-up {
+          from { transform: translateY(50px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fade-in-up {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fade-in-left {
+          from { transform: translateX(-20px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes bounce-gentle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+        }
+        
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-float-delayed { animation: float-delayed 8s ease-in-out infinite; }
+        .animate-fade-in { animation: fade-in 0.8s ease-out; }
+        .animate-slide-up { animation: slide-up 0.8s ease-out; }
+        .animate-fade-in-up { animation: fade-in-up 0.6s ease-out; }
+        .animate-fade-in-left { animation: fade-in-left 0.6s ease-out; }
+        .animate-bounce-gentle { animation: bounce-gentle 2s ease-in-out infinite; }
+        .animate-spin-slow { animation: spin-slow 3s linear infinite; }
+        
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .delay-600 { animation-delay: 600ms; }
+        .delay-700 { animation-delay: 700ms; }
+        .delay-800 { animation-delay: 800ms; }
+        .delay-900 { animation-delay: 900ms; }
+      `}</style>
+    </div>
+  );
+}
