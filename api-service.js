@@ -93,10 +93,12 @@ export const loginUser = async (credentials) => {
 
       // A crucial step: Tell the Supabase client about the user session.
       // This allows it to make authenticated calls to storage.
-      await supabase.auth.setSession({
-        access_token: data.token,
-        refresh_token: data.refreshToken,
-      });
+      if (data.refreshToken) {
+        await supabase.auth.setSession({
+          access_token: data.token,
+          refresh_token: data.refreshToken,
+        });
+      }
     }
     
     return data;
@@ -185,5 +187,59 @@ export const togglePostLike = (postId, isLiked, token) => {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ isLiked }),
+  });
+};
+
+/**
+ * Save an event for the authenticated user.
+ * @param {string} eventId The ID of the event to save.
+ * @param {string} userId The ID of the user saving the event.
+ * @param {string} token The user's authentication token.
+ * @returns {Promise<object>} The server's response.
+ */
+export const saveEvent = (eventId, userId, token) => {
+  return apiCall('/saveevent/save', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ eventId, userId }),
+  });
+};
+
+/**
+ * Unsave an event for the authenticated user.
+ * @param {string} eventId The ID of the event to unsave.
+ * @param {string} userId The ID of the user unsaving the event.
+ * @param {string} token The user's authentication token.
+ * @returns {Promise<object>} The server's response.
+ */
+export const unsaveEvent = (eventId, userId, token) => {
+  return apiCall('/saveevent/unsave', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ eventId, userId }),
+  });
+};
+
+/**
+ * Get all saved events for the authenticated user.
+ * @param {string} token The user's authentication token.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of saved events.
+ */export const getSavedEvents = (userId, token) => {
+  if (!userId) {
+    throw new Error('User ID not found. Please log in again.');
+  }
+
+  return apiCall(`/saveevent/${userId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
   });
 };

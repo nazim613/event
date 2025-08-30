@@ -308,17 +308,16 @@ const CommunityPage = () => {
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-semibold text-gray-900 text-sm border-b border-gray-100 pb-2">Shortcuts</h4>
-                <button className="w-full text-left px-3 py-2 text-gray-700 hover:bg-yellow-50 rounded-lg transition-colors text-sm">
-                  My Posts
-                </button>
-                <button className="w-full text-left px-3 py-2 text-gray-700 hover:bg-yellow-50 rounded-lg transition-colors text-sm">
-                  Saved Events
-                </button>
-                <button className="w-full text-left px-3 py-2 text-gray-700 hover:bg-yellow-50 rounded-lg transition-colors text-sm">
-                  My Groups
-                </button>
-              </div>
+  <h4 className="font-semibold text-gray-900 text-sm border-b border-gray-100 pb-2">Shortcuts</h4>
+  <button className="w-full text-left px-3 py-2 text-gray-700 hover:bg-yellow-50 rounded-lg transition-colors text-sm">
+    My Posts
+  </button>
+  <Link href="/saved-events">
+    <button className="w-full text-left px-3 py-2 text-gray-700 hover:bg-yellow-50 rounded-lg transition-colors text-sm">
+      Saved Events
+    </button>
+  </Link>
+</div>
             </div>
           </div>
 

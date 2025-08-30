@@ -32,15 +32,19 @@ import {
   Camera,
   Music,
   AlertTriangle,
-  UserPlus
+  UserPlus,
+  Bookmark,
+  BookmarkCheck,
+  LogIn
 } from 'lucide-react';
 
 import Header from '../components/Header';
 import CustomCursor from '../components/CustomCursor';
 import Footer from '../components/Footer';
+import LoginModal from '../components/LoginModal';
 
-// Import your API service function
-import { getEvents } from '../../../api-service';
+// Import your API service functions
+import { getEvents, saveEvent, unsaveEvent, getSavedEvents, loginUser } from '../../../api-service';
 
 // Define the Event interface
 interface Event {
@@ -62,6 +66,33 @@ interface Event {
   highlights: string[];
 }
 
+// Define interfaces for API responses
+interface SavedEvent {
+  eventId: string;
+  userId: string;
+  // Add other properties as needed
+}
+
+// Generic type for API responses when structure is unknown
+interface UnknownSavedEvent {
+  eventId: string;
+  [key: string]: unknown;
+}
+
+interface LoginResponse {
+  user: {
+    id: string;
+    name: string;
+    email?: string;
+  };
+  token: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+}
+
 function EventsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
@@ -72,6 +103,34 @@ function EventsPage() {
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // State for saved events
+  const [savedEventIds, setSavedEventIds] = useState<Set<string>>(new Set());
+  const [savingEvents, setSavingEvents] = useState<Set<string>>(new Set());
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+
+  // User state
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
+  // Check if user is logged in
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (storedToken && storedUser) {
+        try {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+        } catch (err) {
+          console.error('Error parsing stored user data:', err);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+    }
+  }, []);
 
   // Fetch data from the API when the component mounts
   useEffect(() => {
@@ -90,6 +149,25 @@ function EventsPage() {
     fetchEventsFromApi();
   }, []); // The empty array ensures this runs only once
 
+  // Fetch saved events when user is available
+  useEffect(() => {
+    async function fetchSavedEvents() {
+      if (user && token) {
+        try {
+          const savedEvents = await getSavedEvents(user.id, token);
+          // Handle the case where savedEvents might not match our expected structure
+          const savedIds = new Set(
+            (savedEvents as UnknownSavedEvent[]).map((event) => event.eventId)
+          );
+          setSavedEventIds(savedIds);
+        } catch (err) {
+          console.error("Failed to fetch saved events:", err);
+        }
+      }
+    }
+    fetchSavedEvents();
+  }, [user, token]);
+
   // Separate events into upcoming and past based on the fetched data
   const now = new Date();
   const upcomingEvents = allEvents.filter(event => new Date(event.date) >= now);
@@ -97,16 +175,7 @@ function EventsPage() {
 
   const categories = ['all', 'Adventure', 'Social', 'Culture', 'Workshop', 'Food'] as const;
 
-  const getColorClasses = (color: string): string => {
-    const colors: Record<string, string> = {
-      Adventure: 'from-yellow-400 to-amber-500',
-      Social: 'from-blue-500 to-blue-700',
-      Culture: 'from-yellow-400 to-blue-600',
-      Workshop: 'from-blue-600 to-blue-800',
-      Food: 'from-yellow-500 to-amber-500',
-    };
-    return colors[color] || 'from-yellow-400 to-amber-500';
-  };
+  // Removed unused getColorClasses function
 
   const getCategoryColor = (category: string): string => {
     const colors: Record<string, string> = {
@@ -158,21 +227,93 @@ function EventsPage() {
   };
 
   const handleEventClick = (eventId: string) => {
-  // Convert the string ID to a number
-  const numericId = parseInt(eventId, 10);
+    // Convert the string ID to a number
+    const numericId = parseInt(eventId, 10);
 
-  // Check if the conversion was successful
-  if (isNaN(numericId)) {
-    console.error('Invalid event ID:', eventId);
-    return;
-  }
+    // Check if the conversion was successful
+    if (isNaN(numericId)) {
+      console.error('Invalid event ID:', eventId);
+      return;
+    }
 
-  console.log('Navigating to event with numeric ID:', numericId);
-  console.log('Full URL:', `/eventdetails/${numericId}`);
+    console.log('Navigating to event with numeric ID:', numericId);
+    console.log('Full URL:', `/eventdetails/${numericId}`);
 
-  // Navigate to the event details page with the numeric ID
-  router.push(`/eventdetails/${numericId}`);
-};
+    // Navigate to the event details page with the numeric ID
+    router.push(`/eventdetails/${numericId}`);
+  };
+
+  const handleSaveEvent = async (eventId: string) => {
+    if (!user || !token) {
+      // Show login modal for non-authenticated users
+      setShowLoginModal(true);
+      return;
+    }
+
+    const isSaved = savedEventIds.has(eventId);
+    setSavingEvents(prev => new Set(prev).add(eventId));
+
+    try {
+      if (isSaved) {
+        await unsaveEvent(eventId, user.id, token);
+        setSavedEventIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(eventId);
+          return newSet;
+        });
+      } else {
+        await saveEvent(eventId, user.id, token);
+        setSavedEventIds(prev => new Set(prev).add(eventId));
+      }
+    } catch (err) {
+      console.error('Failed to save/unsave event:', err);
+      alert('Failed to save event. Please try again.');
+    } finally {
+      setSavingEvents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(eventId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleLogin = async (userData: LoginResponse) => {
+    try {
+      console.log('handleLogin called with userData:', userData);
+      
+      if (userData && userData.user && userData.token) {
+        setToken(userData.token);
+        setUser({
+          id: userData.user.id,
+          name: userData.user.name,
+        });
+        
+        // Store in localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', userData.token);
+          localStorage.setItem('user', JSON.stringify({
+            id: userData.user.id,
+            name: userData.user.name,
+          }));
+        }
+        
+        // Fetch saved events after login
+        try {
+          const savedEvents = await getSavedEvents(userData.user.id, userData.token);
+          const savedIds = new Set(
+            (savedEvents as UnknownSavedEvent[]).map((event) => event.eventId)
+          );
+          setSavedEventIds(savedIds);
+        } catch (savedEventsErr) {
+          console.error('Failed to fetch saved events:', savedEventsErr);
+          // Don't throw here, login was successful
+        }
+      }
+    } catch (err) {
+      console.error('Login failed:', err);
+      throw err;
+    }
+  };
 
   const eventsToDisplay = activeTab === 'upcoming' ? upcomingEvents : pastEvents;
   const filteredEvents = filterEvents(eventsToDisplay);
@@ -395,31 +536,64 @@ function EventsPage() {
                             </div>
                           </div>
                           
-                          {/* Event Image - Mobile positioned at top right */}
-                          {event.imageUrl ? (
-                            <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
-                              <Image
-                                src={event.imageUrl}
-                                alt={event.title}
-                                width={56}
-                                height={56}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
-                              <div 
-                                className="w-full h-full flex items-center justify-center text-xs font-bold text-white leading-tight text-center"
-                                style={{
-                                  background: 'linear-gradient(135deg, #facc15, #f59e0b, #3b82f6, #facc15)',
-                                  backgroundSize: '400% 400%',
-                                  animation: 'gradientShift 3s ease infinite'
-                                }}
-                              >
-                                JOIN<br />ME AT<br />PARTY
+                          <div className="flex items-center gap-2">
+                            {/* Save Button - Mobile - Always visible */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSaveEvent(event.id);
+                              }}
+                              disabled={savingEvents.has(event.id)}
+                              className={`p-2 rounded-lg transition-all duration-300 shadow-sm border ${
+                                user && savedEventIds.has(event.id)
+                                  ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200 border-yellow-300'
+                                  : !user
+                                  ? 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 border-gray-200'
+                                  : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200'
+                              } ${savingEvents.has(event.id) ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md'}`}
+                              title={
+                                !user 
+                                  ? 'Click to login and save events' 
+                                  : savedEventIds.has(event.id) 
+                                  ? 'Remove from saved' 
+                                  : 'Save event'
+                              }
+                            >
+                              {savingEvents.has(event.id) ? (
+                                <div className="w-4 h-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
+                              ) : user && savedEventIds.has(event.id) ? (
+                                <BookmarkCheck className="w-4 h-4" />
+                              ) : (
+                                <Bookmark className="w-4 h-4" />
+                              )}
+                            </button>
+                            
+                            {/* Event Image - Mobile positioned at top right */}
+                            {event.imageUrl ? (
+                              <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
+                                <Image
+                                  src={event.imageUrl}
+                                  alt={event.title}
+                                  width={56}
+                                  height={56}
+                                  className="w-full h-full object-cover"
+                                />
                               </div>
-                            </div>
-                          )}
+                            ) : (
+                              <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
+                                <div 
+                                  className="w-full h-full flex items-center justify-center text-xs font-bold text-white leading-tight text-center"
+                                  style={{
+                                    background: 'linear-gradient(135deg, #facc15, #f59e0b, #3b82f6, #facc15)',
+                                    backgroundSize: '400% 400%',
+                                    animation: 'gradientShift 3s ease infinite'
+                                  }}
+                                >
+                                  JOIN<br />ME AT<br />PARTY
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -481,8 +655,39 @@ function EventsPage() {
                             </div>
                           </div>
                           
-                          {/* Desktop Event Image */}
+                          {/* Desktop Event Image and Save Button */}
                           <div className="hidden lg:flex flex-col items-center gap-4 ml-6">
+                            {/* Save Button - Desktop - Always visible */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSaveEvent(event.id);
+                              }}
+                              disabled={savingEvents.has(event.id)}
+                              className={`p-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${
+                                user && savedEventIds.has(event.id)
+                                  ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200 border-yellow-300'
+                                  : !user
+                                  ? 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 border-gray-200'
+                                  : 'bg-white text-gray-600 hover:bg-gray-50 border-gray-200 hover:border-gray-300'
+                              } ${savingEvents.has(event.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              title={
+                                !user 
+                                  ? 'Click to login and save events' 
+                                  : savedEventIds.has(event.id) 
+                                  ? 'Remove from saved' 
+                                  : 'Save event'
+                              }
+                            >
+                              {savingEvents.has(event.id) ? (
+                                <div className="w-5 h-5 animate-spin border-2 border-current border-t-transparent rounded-full" />
+                              ) : user && savedEventIds.has(event.id) ? (
+                                <BookmarkCheck className="w-5 h-5" />
+                              ) : (
+                                <Bookmark className="w-5 h-5" />
+                              )}
+                            </button>
+                            
                             {/* Event Image - Desktop */}
                             {event.imageUrl ? (
                               <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 shadow-lg">
@@ -565,6 +770,23 @@ function EventsPage() {
               </button>
             </div>
           )}
+
+          {/* Login Prompt for Non-authenticated Users */}
+          {!user && (
+            <div className="mt-12 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl text-center fade-in-up">
+              <div className="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Bookmark className="w-8 h-8 text-yellow-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Save Your Favorite Events</h3>
+              <p className="text-gray-600 mb-4">Log in to save events and never miss out on amazing experiences!</p>
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-semibold rounded-xl hover:shadow-lg transition-smooth hover-glow"
+              >
+                Log In to Save Events
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -606,6 +828,15 @@ function EventsPage() {
       </section>
       
       <Footer />
+
+      {/* LoginModal Component */}
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={() => setShowLoginModal(false)}
+          handleLogin={handleLogin}
+        />
+      )}
     </div>
   );
 }
